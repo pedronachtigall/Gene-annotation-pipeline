@@ -23,6 +23,20 @@ This genome is available in the NCBI ([PRJNA679826](https://www.ncbi.nlm.nih.gov
 
 We used the soft-maked primary assembly to perform the gene annotation, which can be obtained following the "[Repeat Annotation](https://github.com/pedronachtigall/Repeat-annotation-pipeline)" tutorial.
 
+We will use the following RNA-seq data as transcript evidence:
+The raw data is listed below:
+| Sample ID | Data type | NCBI accession |
+| :-------- | :-------: | :------------: | 
+| SB1851_VG_rna  | RNA-seq | SRR32358140 |
+| SB1851_HG_rna  | RNA-seq | SRR32358139 |
+| SB1851_ILG_rna  | RNA-seq | SRR32358138 |
+| SB1851_Pancreas_rna  | RNA-seq | SRR32358137 |
+| SB1851_Muscle_rna  | RNA-seq | SRR32358136 |
+| SB1851_Heart_rna  | RNA-seq | SRR32358151 |
+| SB1851_Brain_rna  | RNA-seq | SRR32358150 |
+| SB1851_Spleen_rna  | RNA-seq | SRR32358149 |
+| SB1851_Kidney_rna  | RNA-seq | SRR32358148 |
+| SB1851_Ovary_rna  | RNA-seq | SRR32358147 |
 
 ## Retrieve transcripts and proteins from RNA-seq data
 ```
@@ -41,7 +55,9 @@ ${SAMPLE}_R1_val_1.fastq.gz ${SAMPLE}_R2_val_2.fastq.gz
 
 ### Predict proteins using CodAn
 ```
-ADD CODE
+wget https://github.com/pedronachtigall/CodAn/blob/master/models/VERT_full.zip
+unzip VERT_full.zip
+codan.py -t transcripts.fa -o output_folder -m VERT_full/
 ```
 
  - It is the transcript-derived proteins for the target species, which will be used as transcript evidence.
