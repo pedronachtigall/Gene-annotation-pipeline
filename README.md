@@ -3,25 +3,23 @@ Bioinformatics pipeline and tutorial for performing gene annotation in genome as
 
 :construction:	**Under construction!** :construction:	
 
-
-
 ## Dependencies
  - [Python](https://www.python.org/) and [biopython](https://biopython.org/)
  - [GALBA](https://github.com/Gaius-Augustus/GALBA)
  - [CodAn](https://github.com/pedronachtigall/CodAn)
  - [StringTie](https://github.com/gpertea/stringtie)
- - [STAR](https://github.com/alexdobin/STAR/releases)
+ - [HISAT2](https://github.com/DaehwanKimLab/hisat2)
+ - [GffRead](https://github.com/gpertea/gffread)
  - [Orthofinder](https://github.com/davidemms/OrthoFinder)
 
 Ensure that all dependencies are installed and working properly.
 
-<!---
 ## Model species
 We will use the Golden lancehead (*Bothrops insularis*) as a model for this tutorial.
 
 This genome is available in the NCBI ([PRJNA679826](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA679826/)) and [figshare](https://figshare.com/projects/Bothrops_insularis_genome/237995) repositories.
 
-We used the soft-maked primary assembly to perform the gene annotation, which can be obtained following the "[Repeat Annotation](https://github.com/pedronachtigall/Repeat-annotation-pipeline)" tutorial.
+It is recommended that you run GALBA on genomic sequences that have been softmasked for Repeats. You can follow the "[Repeat Annotation](https://github.com/pedronachtigall/Repeat-annotation-pipeline)" tutorial to soft-mask the genome.
 
 We will use the following RNA-seq data as transcript evidence:
 The raw data is listed below:
@@ -43,39 +41,50 @@ The raw data is listed below:
 #trim reads
 trim_galore --paired --phred33 --length 75 -q 25 --stringency 1 -e 0.1 -o ${SAMPLE}_tg ${SAMPLE}_R1.fastq.gz ${SAMPLE}_R2.fastq.gz
 
-
-#index gthe genome
-${SAMPLE}_R1_val_1.fastq.gz ${SAMPLE}_R2_val_2.fastq.gz
+#index the genome
+hisat2-build -p 20 Binsularis_primary_chromosomes.fasta GINDEX
 
 #map reads
+hisat2 -p 20 --rg-id ${SAMPLE} --rg SM:${SAMPLE} --summary-file ${SAMPLE}_hisat2_summary.txt -x GINDEX -1 ${SAMPLE}_R1_val_1.fastq.gz -2 ${SAMPLE}_R2_val_2.fastq.gz -S ${SAMPLE}.sam
+samtools view -@ 20 -b -S -o ${SAMPLE}.bam ${SAMPLE}.sam
+rm ${SAMPLE}.sam
+samtools view -@ 20 -b -F 4 ${SAMPLE}.bam > ${SAMPLE}_mapped.bam
+rm ${SAMPLE}.bam
+samtools sort -@ 20 ${SAMPLE}_mapped.bam -o ${SAMPLE}_mapped.sorted.bam"
+rm ${SAMPLE}_mapped.bam
+samtools index ${SAMPLE}_mapped.sorted.bam
+
+#merge bam files
+samtools merge -o merged.bam *.mapped.sorted.bam
+samtools index merged.bam
 
 #retrieve transcripts
-
+stringtie -p 20 -o transcripts.gtf merged.bam
+gffread -w transcripts.fasta -g Binsularis_primary_chromosomes.fasta transcripts.gtf
 ```
 
 ### Predict proteins using CodAn
 ```
 wget https://github.com/pedronachtigall/CodAn/blob/master/models/VERT_full.zip
 unzip VERT_full.zip
-codan.py -t transcripts.fa -o output_folder -m VERT_full/
+codan.py -t transcripts.fasta -o CodAn_output/ -m VERT_full/
 ```
+ - The file ```CodAn_output/PEP_sequences.fasta``` is the transcript-derived proteins for the target species, which will be used as transcript evidence.
 
- - It is the transcript-derived proteins for the target species, which will be used as transcript evidence.
-
-## Retrieve proteins from other snake species
+## Retrieve proteins from other species
 Survey protein databases to ensure a compelte protein set to be used as protein evidence.
 
-Here we are surveying the ENSEMBL, Uniprot, and NCBI databases.
+Here, we are surveying the [ENSEMBL](https://www.ensembl.org/index.html), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) databases. Specifically, we will retrieve sequences from snakes, lizard, chicken, and mouse. But you can retrieve seqeunces from more species (and also modifiy based on your target lineage).
 ```
 ADD CODE
 ```
 
-## Merge the transcript-dervied proteins to the other snake species proteins
+## Merge the transcript-derived proteins to the other snake species proteins
 ```
-ADD CODE
+cat CodAn_output/PEP_sequences.fasta ProteinDB.fasta > FINALProteinDB.fasta
 ```
 
 ## Perform gene annotation using GALBA
 ```
-ADD CODE
+galba.pl --species=Bothrops_insularis --genome=Binsularis_primary_chromosomes.softmasked.fasta --prot_seq=FINALProteinDB.fasta
 ```
