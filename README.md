@@ -1,8 +1,6 @@
 # Gene-annotation-pipeline
 Bioinformatics pipeline and tutorial for performing gene annotation in genome assemblies using GALBA
 
-:construction:	**Under construction!** :construction:	
-
 ## Dependencies
  - [Python](https://www.python.org/) and [biopython](https://biopython.org/)
  - [GALBA](https://github.com/Gaius-Augustus/GALBA)
@@ -76,15 +74,36 @@ Survey protein databases to ensure a compelte protein set to be used as protein 
 
 Here, we are surveying the [ENSEMBL](https://www.ensembl.org/index.html), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) databases. Specifically, we will retrieve sequences from snakes, lizard, chicken, and mouse. But you can retrieve seqeunces from more species (and also modifiy based on your target lineage).
 ```
-ADD CODE
+#snakes
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/039/797/435/GCA_039797435.1_Cadamanteus_3dDNAHiC_1.2/GCA_039797435.1_Cadamanteus_3dDNAHiC_1.2_protein.faa.gz
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/769/535/GCF_009769535.1_rThaEle1.pri/GCF_009769535.1_rThaEle1.pri_protein.faa.gz
+wget https://ftp.ensembl.org/pub/release-115/fasta/pseudonaja_textilis/pep/Pseudonaja_textilis.EBS10Xv2-PRI.pep.all.fa.gz
+wget https://ftp.ensembl.org/pub/release-115/fasta/notechis_scutatus/pep/Notechis_scutatus.TS10Xv2-PRI.pep.all.fa.gz
+wget https://ftp.ensembl.org/pub/release-115/fasta/naja_naja/pep/Naja_naja.Nana_v5.pep.all.fa.gz
+
+#lizards
+wget https://ftp.ensembl.org/pub/release-115/fasta/anolis_carolinensis/pep/Anolis_carolinensis.AnoCar2.0v2.pep.all.fa.gz
+wget https://ftp.ensembl.org/pub/release-115/fasta/pogona_vitticeps/pep/Pogona_vitticeps.pvi1.1.pep.all.fa.gz
+wget https://ftp.ensembl.org/pub/release-115/fasta/varanus_komodoensis/pep/Varanus_komodoensis.ASM479886v1.pep.all.fa.gz
+wget https://ftp.ensembl.org/pub/release-115/fasta/podarcis_muralis/pep/Podarcis_muralis.PodMur_1.0.pep.all.fa.gz
+
+#chicken
+wget https://ftp.ensembl.org/pub/release-115/fasta/gallus_gallus/pep/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.pep.all.fa.gz
+
+#mouse
+wget https://ftp.ensembl.org/pub/release-115/fasta/mus_musculus/pep/Mus_musculus.GRCm39.pep.all.fa.gz
+
+#merge those proteins into a single file
+zcat *.gz > ProteinDB.fasta
 ```
 
-## Merge the transcript-derived proteins to the other snake species proteins
+## Merge the transcript-derived proteins to the proteins available to other species
 ```
 cat CodAn_output/PEP_sequences.fasta ProteinDB.fasta > FINALProteinDB.fasta
 ```
 
 ## Perform gene annotation using GALBA
 ```
-galba.pl --species=Bothrops_insularis --genome=Binsularis_primary_chromosomes.softmasked.fasta --prot_seq=FINALProteinDB.fasta
+galba.pl --threads 20 --genome=Binsularis_primary_chromosomes.softmasked.fasta --prot_seq=FINALProteinDB.fasta
 ```
+ - It will take a while to finish.
