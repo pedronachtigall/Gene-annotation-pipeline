@@ -13,7 +13,7 @@ Bioinformatics pipeline and tutorial for performing gene annotation in genome as
 Ensure that all dependencies are installed and working properly.
 
 ## Model species
-We will use the Golden lancehead (*Bothrops insularis*) as a model for this tutorial.
+We will use the Golden lancehead (*Bothrops insularis*) as a model for this tutorial ([Nachtigall et al., 2025](https://doi.org/10.1093/gbe/evaf243)).
 
 This genome is available in the NCBI ([PRJNA679826](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA679826/)) and [figshare](https://figshare.com/projects/Bothrops_insularis_genome/237995) repositories.
 
