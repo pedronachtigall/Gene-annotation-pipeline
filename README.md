@@ -38,6 +38,8 @@ The raw data is listed below:
 ```
 #trim reads
 trim_galore --paired --phred33 --length 75 -q 25 --stringency 1 -e 0.1 -o ${SAMPLE}_tg ${SAMPLE}_R1.fastq.gz ${SAMPLE}_R2.fastq.gz
+#Alternatively, fastp can be used:
+#fastp --compression 4 -i ${SAMPLE}_R1.fastq.gz -I ${SAMPLE}_R2.fastq.gz -o ${i}_R1.trimmed.fastq.gz -O ${i}_R2.trimmed.fastq.gz
 
 #index the genome
 hisat2-build -p 20 Binsularis_primary_chromosomes.fasta GINDEX
